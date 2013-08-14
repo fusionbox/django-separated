@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from operator import attrgetter
 from email.header import Header
 
+import django
 from django.http import HttpResponse
 from django.views.generic.list import MultipleObjectMixin, BaseListView
 from django.core.exceptions import ImproperlyConfigured
@@ -14,10 +15,6 @@ except ImportError:  # unicodecsv is unnecessary on Python 3
 
 
 def encode_header(value):
-    """
-    BBB: Django 1.3 doesn't support non ASCII Headers.  Later versions do this
-    for us.
-    """
     return Header(value, 'utf-8').encode()
 
 
@@ -25,7 +22,11 @@ class CsvResponse(HttpResponse):
     def __init__(self, filename, content_type='text/csv', **kwargs):
         super(CsvResponse, self).__init__(content_type=content_type, **kwargs)
         disposition = 'attachment; filename="{0}"'.format(filename)
-        self['Content-Disposition'] = encode_header(disposition)
+        # BBB: Django 1.4 and earlier didn't support non-ASCII headers.  Later
+        # versions do this for us.
+        if django.VERSION < (1, 5):
+            disposition = encode_header(disposition)
+        self['Content-Disposition'] = disposition
 
 
 class CsvResponseMixin(MultipleObjectMixin):
