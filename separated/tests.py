@@ -4,13 +4,15 @@ from __future__ import unicode_literals
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import ugettext_lazy as _
 
 from separated.views import CsvView, encode_header
+from separated.utils import Getter, BooleanGetter
 
 from testproject.testproject.models import Car, Manufacturer
 
 
-class AttrGetterTest(TestCase):
+class StringAccessorTest(TestCase):
     def setUp(self):
         self.manufacturer = Manufacturer.objects.create(
             name='Jeep',
@@ -47,6 +49,52 @@ class AttrGetterTest(TestCase):
             columns = ['get_display_name']
 
         self.assertEqual(View().get_row(self.car), ['GRAND CHEROKEE'])
+
+
+class GetterTest(TestCase):
+    def setUp(self):
+        self.manufacturer = Manufacturer.objects.create(
+            name='Jeep',
+        )
+        self.car = self.manufacturer.car_set.create(
+            name='Grand Cherokee',
+        )
+
+    def test_lambda(self):
+        get = Getter(lambda x: x.name)
+        self.assertEqual(get(self.car), 'Grand Cherokee')
+
+    def test_simpleattr(self):
+        get = Getter('name')
+        self.assertEqual(get(self.car), 'Grand Cherokee')
+        self.assertEqual(get.short_description, 'Name')
+
+    def test_dotted_path(self):
+        get = Getter('manufacturer.name')
+        self.assertEqual(get(self.car), 'Jeep')
+
+    def test_callable(self):
+        get = Getter('get_display_name')
+        self.assertEqual(get(self.car), 'GRAND CHEROKEE')
+
+    def test_normalizer(self):
+        get = Getter('name', normalizer=lambda x: x.upper())
+        self.assertEqual(get(self.car), 'GRAND CHEROKEE')
+
+    def test_boolean_getter(self):
+        get = BooleanGetter('is_admin')
+        # Administrator car??
+        self.car.is_admin = True
+        self.assertEqual(get(self.car), _('Yes'))
+        self.car.is_admin = False
+        self.assertEqual(get(self.car), _('No'))
+
+    def test_nested_getters(self):
+        get = BooleanGetter('is_admin')
+        get = Getter(get)
+        self.car.is_admin = True
+        self.assertEqual(get(self.car), _('Yes'))
+        self.assertEqual(get.short_description, 'Is admin')
 
 
 class ColumnNormalizerTest(TestCase):

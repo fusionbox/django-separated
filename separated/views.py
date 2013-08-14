@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from operator import attrgetter
 from email.header import Header
 
 import django
@@ -12,6 +11,8 @@ try:
     import unicodecsv as csv
 except ImportError:  # unicodecsv is unnecessary on Python 3
     import csv
+
+from separated.utils import Getter
 
 
 def encode_header(value):
@@ -58,29 +59,19 @@ class CsvResponseMixin(MultipleObjectMixin):
     def format_header(self, column):
         if self.output_headers:
             try:
-                return column.replace('_', ' ') \
-                    .replace('.', ' ') \
-                    .capitalize()
+                return column.short_description
             except AttributeError:
-                try:
-                    return column.short_description
-                except AttributeError:
-                    raise ImproperlyConfigured(
-                        "If you pass a function as an accessor,"
-                        " please provide a column title."
-                    )
+                raise ImproperlyConfigured(
+                    "If you pass a function as an accessor,"
+                    " please provide a column title."
+                )
 
     def get_header_row(self, model):
         return [c[1] for c in self.get_normalized_columns(model)]
 
     def get_row(self, obj):
-        return [self._normalize_getter(c[0])(obj)
+        return [c[0](obj)
                 for c in self.get_normalized_columns(type(obj))]
-
-    def _normalize_column(self, column):
-        if not isinstance(column, (tuple, list)):
-            column = (column, self.format_header(column))
-        return column
 
     def get_normalized_columns(self, model):
         return (self._normalize_column(column)
@@ -98,21 +89,19 @@ class CsvResponseMixin(MultipleObjectMixin):
             model_name=model_name,
         )
 
+    def _normalize_column(self, column):
+        if isinstance(column, (tuple, list)):
+            column = self._normalize_getter(column[0]), column[1]
+        else:
+            column = self._normalize_getter(column)
+            column = (column, self.format_header(column))
+        return column
+
     _getter_cache = {}
 
     def _normalize_getter(self, getter):
         if not getter in self._getter_cache:
-            getfn = getter
-            if not callable(getfn):
-                getfn = attrgetter(getfn)
-
-            def get_and_call(obj):
-                ret = getfn(obj)
-                if callable(ret):
-                    ret = ret()
-                return ret
-
-            self._getter_cache[getter] = get_and_call
+            self._getter_cache[getter] = Getter(getter)
         return self._getter_cache[getter]
 
 

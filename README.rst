@@ -101,3 +101,18 @@ separated.views.CsvResponse
 
 A subclass of HttpResponse that will download as CSV.  ``CsvResponse``
 requires a ``filename`` as the first argument of the constructor.
+
+
+separated.views.BooleanGetter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have a boolean value that you wish to be transformed into ``Yes`` or
+``No``, you can use the ``BooleanGetter`` accessor::
+
+    from separated.utils import BooleanGetter
+
+    class UserCsvView(CsvView):
+        model = User
+        columns = [
+            BooleanGetter('is_admin'),
+        ]
