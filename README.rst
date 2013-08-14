@@ -25,17 +25,17 @@ separated.views.CsvView
 
 A ListView that returns a ``CsvResponse``.
 
-You can specify the data for each row using the ``headers`` attribute.
-``headers`` should be an iterable of 2-tuples where the first index is
-the CSV header and the second is an accessor to get the value off of an
-object. ::
+You can specify the data for each row using the ``columns`` attribute.
+``columns`` should be an iterable of 2-tuples where the first index is
+an accessor to get the value off of an object and the second is a column
+header. ::
 
     class UserCsvView(CsvView):
         model = User
-        headers = [
-            ('First Name', 'first_name'),
-            ('Last Name', 'last_name'),
-            ('Email', 'email'),
+        columns = [
+            ('first_name', 'First name'),
+            ('last_name', 'Last name'),
+            ('email', 'Email'),
         ]
 
 The accessor can be a string or a callable.  If it isn't a callable, it
@@ -48,8 +48,19 @@ examples of accessors:
 -  ``get_absolute_url``
 -  ``lambda x: x.upvotes.count() - x.downvotes.count()``
 
-There is a corresponding ``get_headers`` method if you need to have
+There is a corresponding ``get_columns`` method if you need to have
 more dynamic behavior.
+
+The header index is optional, if you want a header to be generated from the
+accessor, you can write a simpler ``columns`` declaration::
+
+    class UserCsvView(CsvView):
+        model = User
+        columns = [
+            'first_name',
+            'last_name',
+            'email',
+        ]
 
 Additionally, you can specify the filename of the CSV file that will be
 downloaded.  It will default to the model name + ``_list.csv`` if you don't

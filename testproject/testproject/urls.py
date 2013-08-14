@@ -13,9 +13,9 @@ from testproject.testproject.models import Manufacturer
 
 class ManufacturerView(CsvView):
     model = Manufacturer
-    headers = [
-        ('Name', 'name'),
-        ('Number of models', 'car_set.count'),
+    columns = [
+        ('name', 'Name'),
+        ('car_set.count', 'Number of models'),
     ]
 
 

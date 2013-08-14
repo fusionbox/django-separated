@@ -34,40 +34,65 @@ class CsvResponseMixin(MultipleObjectMixin):
     A ListView mixin that returns a CsvResponse.
     """
     response_class = CsvResponse
-    headers = None
+    columns = None
     output_headers = True
     filename = '{model_name}_list.csv'
 
     def render_to_response(self, context, **kwargs):
         queryset = context['object_list']
+        model = queryset.model
         response = self.response_class(
-            filename=self.get_filename(queryset),
+            filename=self.get_filename(model),
         )
 
         writer = csv.writer(response)
 
         if self.output_headers:
-            writer.writerow(self.get_header_row())
+            writer.writerow(self.get_header_row(model))
 
         for obj in queryset:
             writer.writerow(self.get_row(obj))
 
         return response
 
-    def get_header_row(self):
-        return [h[0] for h in self.get_headers()]
+    def format_header(self, column):
+        if self.output_headers:
+            try:
+                return column.replace('_', ' ') \
+                    .replace('.', ' ') \
+                    .capitalize()
+            except AttributeError:
+                try:
+                    return column.short_description
+                except AttributeError:
+                    raise ImproperlyConfigured(
+                        "If you pass a function as an accessor,"
+                        " please provide a column title."
+                    )
+
+    def get_header_row(self, model):
+        return [c[1] for c in self.get_normalized_columns(model)]
 
     def get_row(self, obj):
-        return [self._normalize_getter(h[1])(obj)
-                for h in self.get_headers()]
+        return [self._normalize_getter(c[0])(obj)
+                for c in self.get_normalized_columns(type(obj))]
 
-    def get_headers(self):
-        if self.headers is None:
-            raise ImproperlyConfigured('Please set the headers.')
-        return self.headers
+    def _normalize_column(self, column):
+        if not isinstance(column, (tuple, list)):
+            column = (column, self.format_header(column))
+        return column
 
-    def get_filename(self, queryset):
-        opts = queryset.model._meta
+    def get_normalized_columns(self, model):
+        return (self._normalize_column(column)
+                for column in self.get_columns(model))
+
+    def get_columns(self, model):
+        if self.columns is None:
+            raise ImproperlyConfigured('Please set the columns.')
+        return self.columns
+
+    def get_filename(self, model):
+        opts = model._meta
         model_name = getattr(opts, 'model_name', opts.module_name)
         return self.filename.format(
             model_name=model_name,
