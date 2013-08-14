@@ -1,5 +1,5 @@
 django-separated
-==============
+================
 
 .. image:: https://api.travis-ci.org/fusionbox/django-separated.png
    :alt: Building Status
@@ -21,7 +21,7 @@ Documentation
 -------------
 
 separated.views.CsvView
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 A ListView that returns a ``CsvResponse``.
 
@@ -66,7 +66,7 @@ By default, ``CsvView`` will output the headers as the first line.  If you
 want to suppress this behavior, set ``output_headers`` to ``False``.
 
 separated.views.CsvResponseMixin
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A MultipleObjectMixin subclass that returns a ``CsvResponse``.
 
@@ -86,7 +86,7 @@ queryset available in the ``object_list`` key. ::
         pass
 
 separated.views.CsvResponse
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A subclass of HttpResponse that will download as CSV.  ``CsvResponse``
 requires a ``filename`` as the first argument of the constructor.
