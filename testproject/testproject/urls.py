@@ -6,7 +6,7 @@ try:
 except ImportError:  # Django 1.3
     from django.conf.urls.defaults import patterns, url
 
-from csvview.views import CsvView
+from separated.views import CsvView
 
 from testproject.testproject.models import Manufacturer
 

@@ -11,5 +11,5 @@ def runtests():
     # Stolen from django/core/management/commands/test.py
     TestRunner = get_runner(settings)
     test_runner = TestRunner(verbosity=1, interactive=True)
-    failures = test_runner.run_tests(['csvview'])
+    failures = test_runner.run_tests(['separated'])
     sys.exit(bool(failures))

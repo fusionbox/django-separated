@@ -11,7 +11,7 @@ INSTALLED_APPS = (
 
     # This is here for test discovery, you don't need
     # to add it to INSTALLED_APPS.
-    'csvview',
+    'separated',
 )
 
 DATABASES = {

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from csvview.views import CsvView, encode_header
+from separated.views import CsvView, encode_header
 
 from testproject.testproject.models import Car, Manufacturer
 

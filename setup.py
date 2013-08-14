@@ -3,7 +3,7 @@ import sys
 
 from setuptools import setup
 
-version = __import__('csvview').get_version()
+version = __import__('separated').get_version()
 
 install_requires = ['Django>=1.3']
 tests_require = []
@@ -16,11 +16,11 @@ def read_file(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as f:
         return f.read()
 
-setup(name='django-csvview',
+setup(name='django-separated',
       version=version,
       author="Fusionbox, Inc.",
       author_email="programmers@fusionbox.com",
-      url="https://github.com/fusionbox/django-csvview",
+      url="https://github.com/fusionbox/django-separated",
       keywords="rest json views django helpers",
       description="Class-based view and mixins for handling CSV with Django.",
       long_description=read_file('README.rst'),
@@ -39,7 +39,7 @@ setup(name='django-csvview',
       install_requires=install_requires,
       tests_require=tests_require,
       packages=[
-          'csvview',
+          'separated',
       ],
 
       test_suite='testproject.runtests',

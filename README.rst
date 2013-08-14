@@ -1,11 +1,11 @@
-django-csvview
+django-separated
 ==============
 
-.. image:: https://api.travis-ci.org/fusionbox/django-csvview.png
+.. image:: https://api.travis-ci.org/fusionbox/django-separated.png
    :alt: Building Status
-   :target: https://travis-ci.org/fusionbox/django-csvview
+   :target: https://travis-ci.org/fusionbox/django-separated
 
-Class-based view and mixins for responding with CSV in Django.  django-csvview
+Class-based view and mixins for responding with CSV in Django.  django-separated
 supports Django 1.3+.
 
 
@@ -14,13 +14,13 @@ Installation
 
 ::
 
-    $ pip install django-csvview
+    $ pip install django-separated
 
 
 Documentation
 -------------
 
-csvview.views.CsvView
+separated.views.CsvView
 ~~~~~~~~~~~~~~~~~~~~~
 
 A ListView that returns a ``CsvResponse``.
@@ -65,7 +65,7 @@ settings the ``filename`` attribute.  There is a corresponding
 By default, ``CsvView`` will output the headers as the first line.  If you
 want to suppress this behavior, set ``output_headers`` to ``False``.
 
-csvview.views.CsvResponseMixin
+separated.views.CsvResponseMixin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A MultipleObjectMixin subclass that returns a ``CsvResponse``.
@@ -85,7 +85,7 @@ queryset available in the ``object_list`` key. ::
     class MyWeirdCsvView(CsvResponseMixin, MyWeirdBaseListView):
         pass
 
-csvview.views.CsvResponse
+separated.views.CsvResponse
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A subclass of HttpResponse that will download as CSV.  ``CsvResponse``
