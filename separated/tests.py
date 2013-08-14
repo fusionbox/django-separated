@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import ugettext_lazy as _
 
 from separated.views import CsvView, encode_header
 from separated.utils import Getter, BooleanGetter
@@ -85,15 +84,15 @@ class GetterTest(TestCase):
         get = BooleanGetter('is_admin')
         # Administrator car??
         self.car.is_admin = True
-        self.assertEqual(get(self.car), _('Yes'))
+        self.assertEqual(get(self.car), 'Yes')
         self.car.is_admin = False
-        self.assertEqual(get(self.car), _('No'))
+        self.assertEqual(get(self.car), 'No')
 
     def test_nested_getters(self):
         get = BooleanGetter('is_admin')
         get = Getter(get)
         self.car.is_admin = True
-        self.assertEqual(get(self.car), _('Yes'))
+        self.assertEqual(get(self.car), 'Yes')
         self.assertEqual(get.short_description, 'Is admin')
 
 

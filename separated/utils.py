@@ -1,8 +1,6 @@
 from operator import attrgetter
 from functools import partial
 
-from django.utils.translation import ugettext_lazy as _
-
 
 def get_pretty_name(accessor):
     return accessor.replace('_', ' ') \
@@ -34,6 +32,7 @@ def Getter(accessor, normalizer=lambda x: x):
     return getter
 
 
-bool2string_map = {True: _('Yes'), False: _('No')}
+# Should these be i18nized?
+bool2string_map = {True: 'Yes', False: 'No'}
 
 BooleanGetter = partial(Getter, normalizer=bool2string_map.get)
