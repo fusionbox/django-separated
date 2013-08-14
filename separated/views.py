@@ -74,8 +74,7 @@ class CsvResponseMixin(MultipleObjectMixin):
                 for c in self.get_normalized_columns(type(obj))]
 
     def get_normalized_columns(self, model):
-        return (self._normalize_column(column)
-                for column in self.get_columns(model))
+        return map(self._normalize_column, self.get_columns(model))
 
     def get_columns(self, model):
         if self.columns is None:
@@ -90,6 +89,9 @@ class CsvResponseMixin(MultipleObjectMixin):
         )
 
     def _normalize_column(self, column):
+        # column can either be a 2-tuple of (accessor, header), or just an
+        # accessor.  accessor will be passed to Getter, and we will get the
+        # header off of the Getter. Returns a 2-tuple of (Getter, header).
         if isinstance(column, (tuple, list)):
             column = self._normalize_getter(column[0]), column[1]
         else:

@@ -22,6 +22,7 @@ def Getter(accessor, normalizer=lambda x: x):
 
     def getter(obj):
         ret = accessor(obj)
+        # handle things like get_absolute_url
         if callable(ret):
             ret = ret()
         return normalizer(ret)
