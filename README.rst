@@ -20,6 +20,9 @@ Installation
 Documentation
 -------------
 
+Views
+`````
+
 separated.views.CsvView
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -103,11 +106,18 @@ A subclass of HttpResponse that will download as CSV.  ``CsvResponse``
 requires a ``filename`` as the first argument of the constructor.
 
 
-separated.views.BooleanGetter
+Getters
+```````
+django-separated provides a couple of helpers for normalizing the data that
+comes off of the model before sending it to the CSV writer.  These are all
+based on a ``Getter`` class which handles the different types of accessors.
+
+
+separated.utils.BooleanGetter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you have a boolean value that you wish to be transformed into ``Yes`` or
-``No``, you can use the ``BooleanGetter`` accessor::
+``No``, you can use the ``BooleanGetter``::
 
     from separated.utils import BooleanGetter
 
@@ -116,3 +126,28 @@ If you have a boolean value that you wish to be transformed into ``Yes`` or
         columns = [
             BooleanGetter('is_admin'),
         ]
+
+separated.utils.DisplayGetter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have a model field that has choices and you want the human readable
+display to appear in the CSV, you can use the ``DisplayGetter``::
+
+    from separated.utils import BooleanGetter
+
+    class User(models.Model):
+        favorite_color = models.CharField(max_length=255,
+            choices=(
+                ('blue', 'Blue'),
+                ('green', 'Green'),
+                ('red', 'Red'),
+            ))
+
+    class UserCsvView(CsvView):
+        model = User
+        columns = [
+            DisplayGetter('favorite_color'),
+        ]
+
+This will end up using the ``get_favorite_color_display`` method that Django
+automatically adds.

@@ -36,3 +36,14 @@ def Getter(accessor, normalizer=lambda x: x):
 bool2string_map = {True: 'Yes', False: 'No'}
 
 BooleanGetter = partial(Getter, normalizer=bool2string_map.get)
+
+
+def DisplayGetter(accessor, *args, **kwargs):
+    """
+    Returns a Getter that gets the display name for a model field with choices.
+    """
+    short_description = get_pretty_name(accessor)
+    accessor = 'get_%s_display' % accessor
+    getter = Getter(accessor, *args, **kwargs)
+    getter.short_description = short_description
+    return getter
