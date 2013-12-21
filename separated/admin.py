@@ -29,6 +29,7 @@ class CsvExportAdminMixin(object):
         }
 
         columns = self.get_csv_export_columns(request)
+        # maybe they already set the columns on the view.
         if columns is not None:
             initkwargs['columns'] = columns
 
