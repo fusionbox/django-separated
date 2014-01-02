@@ -106,6 +106,71 @@ A subclass of HttpResponse that will download as CSV.  ``CsvResponse``
 requires a ``filename`` as the first argument of the constructor.
 
 
+Admin
+`````
+
+You can use django-separated in the admin center to export CSV from the admin
+site. ::
+
+    from separated.admin import CsvExportModelAdmin
+
+    class NewsAdmin(CsvExportModelAdmin):
+        csv_export_columns = [
+            'title',
+            'pub_date',
+            'author.full_name',
+        ]
+
+This adds an action to the change list.
+
+``csv_export_columns`` corresponds to the ``CsvView.columns`` attribute.  If
+you want more fine-grained control, you can override ``csv_export_view_class``
+instead::
+
+    from datetime import datetime
+
+    from separated.admin import CsvExportModelAdmin
+    from separated.views import CsvView
+
+    class NewsCsvView(CsvView):
+        columns = [
+            'title',
+            'pub_date',
+            'author.full_name',
+        ]
+        output_headers = False
+
+        def get_filename(self, model):
+            return '%s-news-export.csv' % datetime.today().strftime('Y-m-d')
+
+    class NewsAdmin(CsvExportModelAdmin):
+        csv_export_view_class = NewsCsvView
+
+``csv_export_columns`` and ``csv_export_view_class`` also exist as methods
+(``get_csv_export_columns`` and ``get_csv_export_view_class`` respectively) if
+you need change them based on request. ::
+
+
+    from separated.admin import CsvExportModelAdmin
+
+    class NewsAdmin(CsvExportModelAdmin):
+        staff_export_columns = (
+            'title',
+            'pub_date',
+            'author.full_name',
+        )
+
+        superuser_export_columns = staff_export_columns + (
+            'secret_column',
+        )
+
+        def get_csv_export_columns(self, request):
+            if request.user.is_superuser:
+                return self.superuser_export_columns
+            else:
+                return self.staff_export_columns
+
+
 Getters
 ```````
 django-separated provides a couple of helpers for normalizing the data that
