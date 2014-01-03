@@ -1,6 +1,12 @@
 1.0.0 (released 2014 January 2)
 -------------------------------
 
+- Bugfix for CsvExportModelAdmin 405 error code.
+
+
+1.0.0 (released 2014 January 2)
+-------------------------------
+
 - Version 1.0.0 (because why not)
 - Added CsvExportModelAdmin
 
