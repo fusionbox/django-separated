@@ -35,6 +35,9 @@ class CsvExportAdminMixin(object):
 
         csv_view_class = self.get_csv_export_view_class(request)
         viewfn = csv_view_class.as_view(**initkwargs)
+        # The base CsvView does not respond to POST requests, actions are only
+        # ever POST requests.
+        request.method = 'GET'
         return viewfn(request)
     export_csv_action.short_description = _("Export to CSV")
 
