@@ -187,15 +187,17 @@ class CsvExportAdminTest(TestCase):
 
     def test_csv_export_columns(self):
         admin = OverrideExportColumnsAdmin(Manufacturer, 'testproject')
-        request = self.factory.get('/')
+        # actions are only ever POSTed to.
+        request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
+        self.assertEqual(response.status_code, 200)
         expected = "Name,Number of models\r\nManufacturer A,0\r\nManufacturer B,0\r\n".encode('utf8')
         self.assertEqual(response.content, expected)
 
     def test_csv_export_view_class(self):
         admin = OverrideExportViewAdmin(Manufacturer, 'testproject')
-        request = self.factory.get('/')
+        request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
         expected = "0,Manufacturer A\r\n0,Manufacturer B\r\n".encode('utf8')
@@ -203,7 +205,7 @@ class CsvExportAdminTest(TestCase):
 
     def test_csv_export_columns_overrides_views_columns(self):
         admin = ExportColumnsAndExportViewAdmin(Manufacturer, 'testproject')
-        request = self.factory.get('/')
+        request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
         expected = "Manufacturer A,0\r\nManufacturer B,0\r\n".encode('utf8')
@@ -211,7 +213,7 @@ class CsvExportAdminTest(TestCase):
 
     def test_no_columns_view_admin_errors_meaningfully(self):
         admin = NoColumnsExportAdmin(Manufacturer, 'testproject')
-        request = self.factory.get('/')
+        request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         with self.assertRaises(ImproperlyConfigured):
             admin.export_csv_action(request, queryset)
