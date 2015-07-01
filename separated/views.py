@@ -86,6 +86,7 @@ class CsvResponseMixin(MultipleObjectMixin):
         try:
             model_name = opts.model_name
         except AttributeError:
+            # for Django < 1.6. Deprecated in 1.6 & removed in 1.8.
             model_name = opts.module_name
         return self.filename.format(
             model_name=model_name,
