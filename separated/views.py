@@ -83,7 +83,10 @@ class CsvResponseMixin(MultipleObjectMixin):
 
     def get_filename(self, model):
         opts = model._meta
-        model_name = getattr(opts, 'model_name', opts.module_name)
+        try:
+            model_name = opts.model_name
+        except AttributeError:
+            model_name = opts.module_name
         return self.filename.format(
             model_name=model_name,
         )
