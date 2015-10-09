@@ -1,4 +1,10 @@
-1.0.0 (released 2014 January 2)
+1.0.2 (released 2015 October 9)
+-------------------------------
+
+- Bugfix for Model._meta.module_name removed in Django 1.8
+
+
+1.0.1 (released 2014 January 2)
 -------------------------------
 
 - Bugfix for CsvExportModelAdmin 405 error code.
