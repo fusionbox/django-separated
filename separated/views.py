@@ -38,6 +38,7 @@ class CsvResponseMixin(MultipleObjectMixin):
     columns = None
     output_headers = True
     filename = '{model_name}_list.csv'
+    dialect = csv.excel
 
     def render_to_response(self, context, **kwargs):
         queryset = context['object_list']
@@ -46,7 +47,7 @@ class CsvResponseMixin(MultipleObjectMixin):
             filename=self.get_filename(model),
         )
 
-        writer = csv.writer(response)
+        writer = csv.writer(response, dialect=self.dialect)
 
         if self.output_headers:
             writer.writerow(self.get_header_row(model))

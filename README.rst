@@ -79,6 +79,13 @@ settings the ``filename`` attribute.  There is a corresponding
 By default, ``CsvView`` will output the headers as the first line.  If you
 want to suppress this behavior, set ``output_headers`` to ``False``.
 
+By defaultm ``csv.excel`` is used as the dialect. You can override the by setting
+the ``dialect`` attribute. For example::
+
+    class UserCsvView(CsvView):
+        model = User
+        dialect = csv.excel_tab
+
 separated.views.CsvResponseMixin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
