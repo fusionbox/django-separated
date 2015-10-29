@@ -3,6 +3,7 @@
 doc/_build
 *.egg-info/
 *.egg
+.eggs/
 build/
 dist/
 test_project/backup

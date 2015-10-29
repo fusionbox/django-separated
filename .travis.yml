@@ -4,9 +4,9 @@ python:
   - "2.6"
   - "3.2"
   - "3.3"
+  - "3.4"
 env:
-  - DJANGO_PACKAGE=https://github.com/django/django/archive/stable/1.6.x.zip
-  - DJANGO_PACKAGE=Django==1.5.1
+  - DJANGO_PACKAGE=Django>=1.8,<1.9
 matrix:
   include:
     - python: "2.6"
