@@ -2,7 +2,6 @@ import os
 
 from setuptools import setup
 
-version = __import__('separated').get_version()
 
 install_requires = ['Django>=1.3', 'unicodecsv']
 tests_require = []
@@ -13,7 +12,7 @@ def read_file(filename):
         return f.read()
 
 setup(name='django-separated',
-      version=version,
+      version='1.0.2',
       author="Fusionbox, Inc.",
       author_email="programmers@fusionbox.com",
       url="https://github.com/fusionbox/django-separated",
