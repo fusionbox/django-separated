@@ -1,22 +1,29 @@
+sudo: false
 language: python
-python:
-  - "2.7"
-  - "2.6"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-env:
-  - DJANGO_PACKAGE=Django>=1.8,<1.9
 matrix:
   include:
-    - python: "2.6"
-      env: DJANGO_PACKAGE=Django==1.3.2
-    - python: "2.6"
-      env: DJANGO_PACKAGE=Django==1.4.5
-    - python: "2.7"
-      env: DJANGO_PACKAGE=Django==1.4.5
+    # based on pip's .travis.yml
+    - python: 2.6
+      env: TOXENV=py26-dj13
+    - python: 2.6
+      env: TOXENV=py26-dj14
+    - python: 2.7
+      env: TOXENV=py27-dj14
+    - python: 2.7
+      env: TOXENV=py27-dj18
+    - python: 3.3
+      env: TOXENV=py33-dj18
+    - python: 3.4
+      env: TOXENV=py34-dj18
+    - python: 2.7
+      env: TOXENV=py27-dj18
+    - python: 3.4
+      env: TOXENV=py34-dj19
+    - python: 3.5
+      env: TOXENV=py35-dj19
 install:
-  - pip install -q $DJANGO_PACKAGE --use-mirrors
-  - pip install --use-mirrors .
+  - pip install --upgrade pip tox
 script:
-  - python setup.py test
+  - tox
+after_script:
+  - cat .tox/$TOX_ENV/log/*.log
