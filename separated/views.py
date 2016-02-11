@@ -7,12 +7,7 @@ from django.http import HttpResponse
 from django.views.generic.list import MultipleObjectMixin, BaseListView
 from django.core.exceptions import ImproperlyConfigured
 
-try:
-    import unicodecsv as csv
-except ImportError:  # unicodecsv is unnecessary on Python 3
-    import csv
-
-from separated.utils import Getter
+from separated.utils import ColumnSerializer
 
 
 def encode_header(value):
@@ -35,6 +30,7 @@ class CsvResponseMixin(MultipleObjectMixin):
     A ListView mixin that returns a CsvResponse.
     """
     response_class = CsvResponse
+    column_serializer_class = ColumnSerializer
     columns = None
     output_headers = True
     filename = '{model_name}_list.csv'
@@ -45,36 +41,18 @@ class CsvResponseMixin(MultipleObjectMixin):
         response = self.response_class(
             filename=self.get_filename(model),
         )
-
-        writer = csv.writer(response)
-
-        if self.output_headers:
-            writer.writerow(self.get_header_row(model))
-
-        for obj in queryset:
-            writer.writerow(self.get_row(obj))
-
+        serialize = self.get_column_serializer(model)
+        serialize(queryset, file=response)
         return response
 
-    def format_header(self, column):
-        if self.output_headers:
-            try:
-                return column.short_description
-            except AttributeError:
-                raise ImproperlyConfigured(
-                    "If you pass a function as an accessor,"
-                    " please provide a column title."
-                )
+    def get_column_serializer_class(self, model):
+        return self.column_serializer_class
 
-    def get_header_row(self, model):
-        return [c[1] for c in self.get_normalized_columns(model)]
-
-    def get_row(self, obj):
-        return [c[0](obj)
-                for c in self.get_normalized_columns(type(obj))]
-
-    def get_normalized_columns(self, model):
-        return map(self._normalize_column, self.get_columns(model))
+    def get_column_serializer(self, model):
+        return self.get_column_serializer_class(model)(
+            self.get_columns(model),
+            output_headers=self.output_headers,
+        )
 
     def get_columns(self, model):
         if self.columns is None:
@@ -91,24 +69,6 @@ class CsvResponseMixin(MultipleObjectMixin):
         return self.filename.format(
             model_name=model_name,
         )
-
-    def _normalize_column(self, column):
-        # column can either be a 2-tuple of (accessor, header), or just an
-        # accessor.  accessor will be passed to Getter, and we will get the
-        # header off of the Getter. Returns a 2-tuple of (Getter, header).
-        if isinstance(column, (tuple, list)):
-            column = self._normalize_getter(column[0]), column[1]
-        else:
-            column = self._normalize_getter(column)
-            column = (column, self.format_header(column))
-        return column
-
-    _getter_cache = {}
-
-    def _normalize_getter(self, getter):
-        if not getter in self._getter_cache:
-            self._getter_cache[getter] = Getter(getter)
-        return self._getter_cache[getter]
 
 
 class CsvView(CsvResponseMixin, BaseListView):

@@ -20,18 +20,71 @@ Installation
 Documentation
 -------------
 
+django-separated provides many tools for generating CSV files based on
+querysets.
+
+Serializer
+``````````
+
+separated.utils.ColumnSerializer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can use the ColumnSerializer to generate CSV. It accepts a column
+definition, and returns a callable that you can use to serialize to CSV. ::
+
+    from separated.utils import ColumnSerializer
+
+    serialize_books = ColumnSerializer([
+        ('title', 'Title'),
+        ('pub_date', 'Publication Date'),
+        ('isbn', 'ISBN'),
+    ])
+    with open('/tmp/books.csv', 'wb') as f:
+        books = Book.objects.all()
+        serialize_books(books, file=f)
+
+The column definition is an iterable of 2-tuples where the first item is an
+accessor to get the value off of an object and the second item is the column
+header.
+
+The accessor can be a string or a callable.  If it isn't a callable, it
+will be passed into attrgetter to turn into a callable.  If the accessor
+returns a callable, it will be called.  All of the following are valid
+examples of accessors:
+
+-  ``'first_name'``
+-  ``'first_name.upper'``
+-  ``'get_absolute_url'``
+-  ``lambda x: x.upvotes.count() - x.downvotes.count()``
+
+You can even stretch across relationships:
+
+-  ``'author'``
+-  ``'author.name'``
+-  ``'author.book_count'``
+-  ``'author.user.username'``
+
+The header value is optional, if you want a header to be generated from the
+accessor, you can write a simpler ``columns`` definition::
+
+    serialize_books = ColumnSerializer([
+        'title',  # Header will be 'Title'
+        'pub_date',  # Header will be 'Pub date'
+    ])
+
+You can mix and match the two styles as well.
+
+By default, ``ColumnSerializer`` will output the headers as the first line.  If
+you want to suppress this behavior, set ``output_headers`` to ``False``.
+
 Views
 `````
 
 separated.views.CsvView
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-A ListView that returns a ``CsvResponse``.
-
-You can specify the data for each row using the ``columns`` attribute.
-``columns`` should be an iterable of 2-tuples where the first index is
-an accessor to get the value off of an object and the second is a column
-header. ::
+A ListView that returns will present the user with a CSV file download. It
+requires a column definition that will be passed to the ``ColumnSerializer`` ::
 
     class UserCsvView(CsvView):
         model = User
@@ -41,29 +94,8 @@ header. ::
             ('email', 'Email'),
         ]
 
-The accessor can be a string or a callable.  If it isn't a callable, it
-will be passed into attrgetter to turn into a callable.  If the accessor
-returns a callable, it will be called.  All of the following are valid
-examples of accessors:
-
--  ``first_name``
--  ``first_name.upper``
--  ``get_absolute_url``
--  ``lambda x: x.upvotes.count() - x.downvotes.count()``
-
 There is a corresponding ``get_columns`` method if you need to have
 more dynamic behavior.
-
-The header index is optional, if you want a header to be generated from the
-accessor, you can write a simpler ``columns`` declaration::
-
-    class UserCsvView(CsvView):
-        model = User
-        columns = [
-            'first_name',
-            'last_name',
-            'email',
-        ]
 
 Additionally, you can specify the filename of the CSV file that will be
 downloaded.  It will default to the model name + ``_list.csv`` if you don't
@@ -76,8 +108,12 @@ will have a filename of ``user_list.csv``.  But you can override it by
 settings the ``filename`` attribute.  There is a corresponding
 ``get_filename`` that you can override for more complicated behavior.
 
-By default, ``CsvView`` will output the headers as the first line.  If you
-want to suppress this behavior, set ``output_headers`` to ``False``.
+CsvView will forward the value of ``output_headers`` to the
+``ColumnSerializer``. To turn off the headers, you can do this::
+
+    class UserCsvView(CsvView):
+        model = False
+        output_headers = False
 
 separated.views.CsvResponseMixin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,11 +222,9 @@ If you have a boolean value that you wish to be transformed into ``Yes`` or
 
     from separated.utils import BooleanGetter
 
-    class UserCsvView(CsvView):
-        model = User
-        columns = [
-            BooleanGetter('is_admin'),
-        ]
+    user_serializer = ColumnSerializer([
+        BooleanGetter('is_admin'),
+    ])
 
 separated.utils.DisplayGetter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -208,11 +242,9 @@ display to appear in the CSV, you can use the ``DisplayGetter``::
                 ('red', 'Red'),
             ))
 
-    class UserCsvView(CsvView):
-        model = User
-        columns = [
-            DisplayGetter('favorite_color'),
-        ]
+    user_serializer = ColumnSerializer([
+        DisplayGetter('favorite_color'),
+    ])
 
 This will end up using the ``get_favorite_color_display`` method that Django
 automatically adds.

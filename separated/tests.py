@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import tempfile
+
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 
-from separated.views import CsvView, encode_header
-from separated.utils import Getter, BooleanGetter
+from separated.views import encode_header
+from separated.utils import ColumnSerializer, Getter, BooleanGetter
 
-from testproject.testproject.models import Car, Manufacturer
+from testproject.testproject.models import Manufacturer
 from testproject.testproject.admin import (
     OverrideExportColumnsAdmin, OverrideExportViewAdmin,
     NoColumnsExportAdmin, ExportColumnsAndExportViewAdmin,
@@ -26,33 +28,20 @@ class StringAccessorTest(TestCase):
         )
 
     def test_lambda(self):
-        class View(CsvView):
-            model = Car
-            columns = [lambda x: x.name]
-            output_headers = False
-
-        self.assertEqual(View().get_row(self.car), ['Grand Cherokee'])
+        serializer = ColumnSerializer([lambda x: x.name], output_headers=False)
+        self.assertEqual(serializer.get_row(self.car), ['Grand Cherokee'])
 
     def test_simple_attr(self):
-        class View(CsvView):
-            model = Car
-            columns = ['name']
-
-        self.assertEqual(View().get_row(self.car), ['Grand Cherokee'])
+        serializer = ColumnSerializer(['name'], output_headers=False)
+        self.assertEqual(serializer.get_row(self.car), ['Grand Cherokee'])
 
     def test_dotted_path(self):
-        class View(CsvView):
-            model = Car
-            columns = ['manufacturer.name']
-
-        self.assertEqual(View().get_row(self.car), ['Jeep'])
+        serializer = ColumnSerializer(['manufacturer.name'])
+        self.assertEqual(serializer.get_row(self.car), ['Jeep'])
 
     def test_callable(self):
-        class View(CsvView):
-            model = Car
-            columns = ['get_display_name']
-
-        self.assertEqual(View().get_row(self.car), ['GRAND CHEROKEE'])
+        serializer = ColumnSerializer(['get_display_name'])
+        self.assertEqual(serializer.get_row(self.car), ['GRAND CHEROKEE'])
 
 
 class GetterTest(TestCase):
@@ -107,10 +96,14 @@ class ColumnNormalizerTest(TestCase):
             return obj.thing
         getter.short_description = 'A Getter'
 
-        class View(CsvView):
-            columns = ['name', 'manufacturer.name', 'display_name', getter]
+        serializer = ColumnSerializer([
+            'name',
+            'manufacturer.name',
+            'display_name',
+            getter,
+        ])
 
-        self.assertEqual(View().get_header_row(Manufacturer), [
+        self.assertEqual(serializer.get_header_row(), [
             'Name',
             'Manufacturer name',
             'Display name',
@@ -118,32 +111,60 @@ class ColumnNormalizerTest(TestCase):
         ])
 
     def test_raises_exception_when_column_header_cannot_be_generated(self):
-        class View(CsvView):
-            columns = [lambda x: x.name]
-
-        self.assertRaises(ImproperlyConfigured, View().get_header_row, Manufacturer)
-
-        class SuppressView(View):
-            output_headers = False
+        self.assertRaises(ImproperlyConfigured, ColumnSerializer, [lambda x: x.name])
 
         # Doesn't raise
-        SuppressView().get_header_row(Manufacturer)
+        ColumnSerializer([lambda x: x.name], output_headers=False)
 
-    def test_can_supply_headers(self):
-        class View(CsvView):
-            columns = [
-                'name',
-                ('manufacturer.name', 'Thing'),
-                'display_name',
-                ('get_absolute_url', 'Description'),
-            ]
-
-        self.assertEqual(View().get_header_row(Manufacturer), [
-            'Name',
-            'Thing',
-            'Display name',
-            'Description',
+    def test_can_be_given_headers(self):
+        serializer = ColumnSerializer([
+            'name',
+            ('manufacturer.name', 'Manufacturer'),
+            'display_name',
+            ('get_absolute_url', 'Link'),
         ])
+
+        self.assertEqual(serializer.get_header_row(), [
+            'Name',
+            'Manufacturer',
+            'Display name',
+            'Link',
+        ])
+
+
+class SerializerTest(TestCase):
+    def setUp(self):
+        self.manufacturer = Manufacturer.objects.create(
+            name='My Manufacturer',
+        )
+
+    def test_serializer(self):
+        serialize = ColumnSerializer([
+            ('name', 'Name'),
+            ('car_set.count', 'Number of models'),
+        ])
+        output = serialize(Manufacturer.objects.all())
+        self.assertEqual(output, 'Name,Number of models\r\nMy Manufacturer,0\r\n')
+
+    def test_serializer_unicode(self):
+        serialize = ColumnSerializer([
+            ('name', 'Name'),
+            ('car_set.count', 'Number of models'),
+        ])
+        Manufacturer.objects.create(name='你好凯兰')
+        output = serialize(Manufacturer.objects.all())
+        self.assertEqual(output, 'Name,Number of models\r\nMy Manufacturer,0\r\n你好凯兰,0\r\n')
+
+    def test_serializer_file(self):
+        serialize = ColumnSerializer([
+            ('name', 'Name'),
+            ('car_set.count', 'Number of models'),
+        ])
+        with tempfile.TemporaryFile() as f:
+            output = serialize(Manufacturer.objects.all(), file=f)
+            self.assertIsNone(output)
+            f.seek(0)
+            self.assertEqual(f.read(), b'Name,Number of models\r\nMy Manufacturer,0\r\n')
 
 
 class CsvViewTest(TestCase):

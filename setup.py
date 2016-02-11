@@ -1,15 +1,11 @@
 import os
-import sys
 
 from setuptools import setup
 
 version = __import__('separated').get_version()
 
-install_requires = ['Django>=1.3']
+install_requires = ['Django>=1.3', 'unicodecsv']
 tests_require = []
-
-if sys.version_info[0] < 3:
-    install_requires.append('unicodecsv')
 
 
 def read_file(filename):
