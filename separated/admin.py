@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from separated.views import CsvView
+from .views import CsvView
 
 
 class CsvExportAdminMixin(object):

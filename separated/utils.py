@@ -1,10 +1,10 @@
-from operator import attrgetter
 from functools import partial
 from io import BytesIO
+from operator import attrgetter
 
 import unicodecsv as csv
-
 from django.core.exceptions import ImproperlyConfigured
+
 
 try:
     from django.utils.encoding import force_text

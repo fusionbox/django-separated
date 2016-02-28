@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from separated.views import CsvView
+
+from .models import Manufacturer
+
+
 try:
     from django.conf.urls import url
 except ImportError:  # Django 1.3
     from django.conf.urls.defaults import url
-
-from separated.views import CsvView
-
-from testproject.testproject.models import Manufacturer
 
 
 class ManufacturerView(CsvView):

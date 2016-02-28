@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 from email.header import Header
 
 import django
-from django.http import HttpResponse
-from django.views.generic.list import MultipleObjectMixin, BaseListView
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponse
+from django.views.generic.list import BaseListView, MultipleObjectMixin
 
-from separated.utils import ColumnSerializer
+from .utils import ColumnSerializer
 
 
 def encode_header(value):

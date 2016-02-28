@@ -3,19 +3,19 @@ from __future__ import unicode_literals
 
 import tempfile
 
+from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django.core.urlresolvers import reverse
-from django.core.exceptions import ImproperlyConfigured
 
-from separated.views import encode_header
-from separated.utils import ColumnSerializer, Getter, BooleanGetter
-
-from testproject.testproject.models import Manufacturer
 from testproject.testproject.admin import (
-    OverrideExportColumnsAdmin, OverrideExportViewAdmin,
-    NoColumnsExportAdmin, ExportColumnsAndExportViewAdmin,
+    ExportColumnsAndExportViewAdmin, NoColumnsExportAdmin,
+    OverrideExportColumnsAdmin, OverrideExportViewAdmin
 )
+from testproject.testproject.models import Manufacturer
+
+from .utils import BooleanGetter, ColumnSerializer, Getter
+from .views import encode_header
 
 
 def utf8(text):
