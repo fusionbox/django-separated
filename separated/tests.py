@@ -18,6 +18,10 @@ from testproject.testproject.admin import (
 )
 
 
+def utf8(text):
+    return text.encode('utf8')
+
+
 class StringAccessorTest(TestCase):
     def setUp(self):
         self.manufacturer = Manufacturer.objects.create(
@@ -176,7 +180,7 @@ class CsvViewTest(TestCase):
     def test_unicode_csv_output(self):
         # In Python 2, the built-in csv library doesn't handle unicode.
         response = self.client.get(reverse('manufacturers'))
-        expected = "Name,Number of models\r\n你好凯兰,0\r\n".encode('utf8')
+        expected = utf8("Name,Number of models\r\n你好凯兰,0\r\n")
         self.assertEqual(response.content, expected)
 
     def test_content_type(self):
@@ -213,7 +217,7 @@ class CsvExportAdminTest(TestCase):
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
         self.assertEqual(response.status_code, 200)
-        expected = "Name,Number of models\r\nManufacturer A,0\r\nManufacturer B,0\r\n".encode('utf8')
+        expected = utf8("Name,Number of models\r\nManufacturer A,0\r\nManufacturer B,0\r\n")
         self.assertEqual(response.content, expected)
 
     def test_csv_export_view_class(self):
@@ -221,7 +225,7 @@ class CsvExportAdminTest(TestCase):
         request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
-        expected = "0,Manufacturer A\r\n0,Manufacturer B\r\n".encode('utf8')
+        expected = utf8("0,Manufacturer A\r\n0,Manufacturer B\r\n")
         self.assertEqual(response.content, expected)
 
     def test_csv_export_columns_overrides_views_columns(self):
@@ -229,7 +233,7 @@ class CsvExportAdminTest(TestCase):
         request = self.factory.post('/')
         queryset = Manufacturer.objects.all()
         response = admin.export_csv_action(request, queryset)
-        expected = "Manufacturer A,0\r\nManufacturer B,0\r\n".encode('utf8')
+        expected = utf8("Manufacturer A,0\r\nManufacturer B,0\r\n")
         self.assertEqual(response.content, expected)
 
     def test_no_columns_view_admin_errors_meaningfully(self):

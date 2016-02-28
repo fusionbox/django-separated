@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 try:
-    from django.conf.urls import patterns, url
+    from django.conf.urls import url
 except ImportError:  # Django 1.3
-    from django.conf.urls.defaults import patterns, url
+    from django.conf.urls.defaults import url
 
 from separated.views import CsvView
 
@@ -19,7 +19,7 @@ class ManufacturerView(CsvView):
     ]
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url('^foo/$', ManufacturerView.as_view(), name='manufacturers'),
     url('^bar/$', ManufacturerView.as_view(filename='áèïôų.csv'), name='unicode_filename'),
-)
+]
