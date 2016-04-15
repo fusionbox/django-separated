@@ -13,7 +13,7 @@ def read_file(filename):
 
 setup(
     name='django-separated',
-    version='1.1.0',
+    version='1.1.1.dev0',
     author="Fusionbox, Inc.",
     author_email="programmers@fusionbox.com",
     url="https://github.com/fusionbox/django-separated",
