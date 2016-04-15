@@ -1,3 +1,10 @@
+1.1.0 (unreleased)
+-------------------------------
+
+- Drop support for old versions of Python/Django
+- New ColumnSerializer class
+
+
 1.0.2 (released 2015 October 9)
 -------------------------------
 
