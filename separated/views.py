@@ -5,7 +5,7 @@ from email.header import Header
 import django
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
-from django.views.generic.list import BaseListView, MultipleObjectMixin
+from django.views.generic.list import BaseListView
 
 from .utils import ColumnSerializer
 
@@ -25,18 +25,21 @@ class CsvResponse(HttpResponse):
         self['Content-Disposition'] = disposition
 
 
-class CsvResponseMixin(MultipleObjectMixin):
+class CsvResponseMixin(object):
     """
-    A ListView mixin that returns a CsvResponse.
+    A mixin that renders a queryset as a CsvResponse.
+
+    @ivar queryset_variable_name: Name of context variable to be rendered in CSV.
     """
     response_class = CsvResponse
+    queryset_variable_name = 'object_list'
     column_serializer_class = ColumnSerializer
     columns = None
     output_headers = True
     filename = '{model_name}_list.csv'
 
     def render_to_response(self, context, **kwargs):
-        queryset = context['object_list']
+        queryset = context[self.queryset_variable_name]
         model = queryset.model
         response = self.response_class(
             filename=self.get_filename(model),

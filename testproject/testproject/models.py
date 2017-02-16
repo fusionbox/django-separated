@@ -13,6 +13,7 @@ class Manufacturer(models.Model):
     def __str__(self):
         return self.name
 
+
 if python_2_unicode_compatible:
     Manufacturer = python_2_unicode_compatible(Manufacturer)
 else:

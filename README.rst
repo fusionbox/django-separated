@@ -118,13 +118,14 @@ CsvView will forward the value of ``output_headers`` to the
 separated.views.CsvResponseMixin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A MultipleObjectMixin subclass that returns a ``CsvResponse``.
+A mixin which returns a ``CsvResponse``.
 
-This is useful in instances where you want to substitute BaseListView for a
-ListView of your own.  ``CsvResponseMixin`` supports all the behavior
+This is useful in instances where you want to render your own queryset as a
+CSV. ``CsvResponseMixin`` supports all the behavior
 mentioned in ``CsvView``, the only machinery you need to hook it up is a
 View class that calls ``render_to_response`` with a context that has a
-queryset available in the ``object_list`` key. ::
+queryset available in the ``queryset_variable_name`` key, ``object_list`` by
+default. ::
 
     class MyWeirdBaseListView(View):
         def get(self, request, *args, **kwargs):

@@ -11,6 +11,7 @@ def read_file(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as f:
         return f.read()
 
+
 setup(
     name='django-separated',
     version='1.1.1.dev0',
