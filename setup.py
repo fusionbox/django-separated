@@ -3,7 +3,7 @@ import os
 from setuptools import setup
 
 
-install_requires = ['Django>=1.3', 'unicodecsv']
+install_requires = ['Django>=2.0', 'unicodecsv']
 tests_require = []
 
 
@@ -27,11 +27,9 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Topic :: Internet :: WWW/HTTP',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3',
     ],
+    python_requires='>=3.8',
     install_requires=install_requires,
     tests_require=tests_require,
     packages=[

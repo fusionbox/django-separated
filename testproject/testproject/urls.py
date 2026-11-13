@@ -3,13 +3,9 @@ from __future__ import unicode_literals
 
 from separated.views import CsvView
 
+from django.urls import re_path
+
 from .models import Manufacturer
-
-
-try:
-    from django.conf.urls import url
-except ImportError:  # Django 1.3
-    from django.conf.urls.defaults import url
 
 
 class ManufacturerView(CsvView):
@@ -21,6 +17,6 @@ class ManufacturerView(CsvView):
 
 
 urlpatterns = [
-    url('^foo/$', ManufacturerView.as_view(), name='manufacturers'),
-    url('^bar/$', ManufacturerView.as_view(filename='áèïôų.csv'), name='unicode_filename'),
+    re_path('^foo/$', ManufacturerView.as_view(), name='manufacturers'),
+    re_path('^bar/$', ManufacturerView.as_view(filename='áèïôų.csv'), name='unicode_filename'),
 ]

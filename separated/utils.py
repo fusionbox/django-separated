@@ -6,10 +6,7 @@ import unicodecsv as csv
 from django.core.exceptions import ImproperlyConfigured
 
 
-try:
-    from django.utils.encoding import force_text
-except ImportError:  # Django < 1.4
-    from django.utils.encoding import force_unicode as force_text
+from django.utils.encoding import force_str
 
 
 def get_pretty_name(accessor):
@@ -99,10 +96,10 @@ class ColumnSerializer(object):
                 )
 
     def get_header_row(self):
-        return [force_text(c[1]) for c in self.normalized_columns]
+        return [force_str(c[1]) for c in self.normalized_columns]
 
     def get_row(self, obj):
-        return [force_text(c[0](obj)) for c in self.normalized_columns]
+        return [force_str(c[0](obj)) for c in self.normalized_columns]
 
     def _normalize_column(self, column):
         # column can either be a 2-tuple of (accessor, header), or just an
